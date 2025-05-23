@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>故事選擇登入頁</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 50px; }
+    .login-box, .story-box { max-width: 400px; margin: auto; }
+    .story-box { display: none; }
+    button { margin-top: 10px; padding: 10px 20px; font-size: 16px; }
+    select, input { padding: 8px; margin: 5px 0; width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h2>請登入以開始選擇故事</h2>
+    <input type="text" id="username" placeholder="帳號"><br>
+    <input type="password" id="password" placeholder="密碼"><br>
+    <button onclick="login()">登入</button>
+    <p id="login-msg" style="color:red;"></p>
+  </div>
+
+  <div class="story-box">
+    <h2>選擇故事主題與故事</h2>
+    <label for="theme">主題：</label>
+    <select id="theme" onchange="updateStories()"></select><br>
+    <label for="story">故事：</label>
+    <select id="story"></select><br>
+    <button onclick="selectStory()">我想讀這個故事！</button>
+    <p id="story-msg" style="color:green;"></p>
+  </div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbxP7FCJ_PU7BBydQVgCPo7v1yIQrfUfj5X7XyXaZihsORCeB0H-dx7gfhbzdc1kGej2Dw/exec";
+    let currentUser = "";
+
+    const storyData = {
+      "友情": ["森林的朋友", "兔子與烏龜"],
+      "勇氣": ["小獅子的冒險", "風暴中的船長"],
+      "智慧": ["狐狸與葡萄", "聰明的猴子"],
+      "誠實": ["牧羊人的謊言", "誠實的孩子"],
+      "努力": ["螞蟻的夏天", "勤奮的松鼠"],
+      "耐心": ["等待花開", "漁夫與金魚"],
+      "成長": ["小芽變大樹", "第一次演出"],
+      "信任": ["河邊的合作", "彼此相信"],
+      "夢想": ["追夢的雲朵", "會飛的豬"],
+      "家庭": ["爸爸的故事", "回家的路"]
+    };
+
+    function login() {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "login",
+          username,
+          password
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          currentUser = username;
+          document.querySelector(".login-box").style.display = "none";
+          document.querySelector(".story-box").style.display = "block";
+          loadThemes();
+        } else {
+          document.getElementById("login-msg").innerText = "帳號或密碼錯誤";
+        }
+      });
+    }
+
+    function loadThemes() {
+      const themeSelect = document.getElementById("theme");
+      themeSelect.innerHTML = "";
+      Object.keys(storyData).forEach(theme => {
+        const option = document.createElement("option");
+        option.value = theme;
+        option.text = theme;
+        themeSelect.appendChild(option);
+      });
+      updateStories();
+    }
+
+    function updateStories() {
+      const selectedTheme = document.getElementById("theme").value;
+      const storySelect = document.getElementById("story");
+      storySelect.innerHTML = "";
+      storyData[selectedTheme].forEach(story => {
+        const option = document.createElement("option");
+        option.value = story;
+        option.text = story;
+        storySelect.appendChild(option);
+      });
+    }
+
+    function selectStory() {
+      const story = document.getElementById("story").value;
+
+      fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "select_story",
+          username: currentUser,
+          story
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById("story-msg").innerText = `你選擇了：「${story}」！已傳送通知。`;
+        }
+      });
+    }
+  </script>
+</body>
+</html>

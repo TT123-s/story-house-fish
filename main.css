@@ -1,0 +1,24 @@
+
+body {
+  font-family: 'Arial', sans-serif;
+  background: #f5f5fa;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+header {
+  background-color: #a78bfa;
+  padding: 20px;
+  color: white;
+}
+main {
+  padding: 20px;
+}
+input, button {
+  margin: 5px;
+  padding: 10px;
+  font-size: 16px;
+}
+section {
+  margin: 30px 0;
+}
